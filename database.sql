@@ -1,10 +1,10 @@
 USE mysql;
 
-DROP DATABASE IF EXISTS book_api;
+DROP DATABASE IF EXISTS books_api;
 
-CREATE DATABASE book_api;
+CREATE DATABASE books_api;
 
-USE book_api;
+USE books_api;
 
 CREATE TABLE
     genres (
@@ -22,6 +22,16 @@ CREATE TABLE
         UNIQUE KEY title_author (title, author),
         FOREIGN KEY (genre_id) REFERENCES genres(id)
     );
+
+CREATE VIEW view_books AS
+SELECT
+    b.id,
+    b.title,
+    b.author,
+    b.price,
+    g.description as genre
+FROM books b
+    INNER JOIN genres g ON b.genre_id = g.id;
 
 INSERT INTO
     genres (description)
