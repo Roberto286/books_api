@@ -41,5 +41,17 @@ class Database {
    }
   });
  }
+
+ insertBook(book, callback_success, callback_error) {
+  const sql = 'INSERT INTO books (title, author, genre_id, price) VALUES (?,?,(SELECT id FROM genres WHERE description = ?),?)';
+
+  this.pool.execute(sql, [book.title, book.author, book.genre, book.price], (err, res) => {
+   if (err) {
+    callback_error(err);
+   } else {
+    callback_success(res);
+   }
+  });
+ }
 }
 module.exports = Database;
