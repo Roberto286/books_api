@@ -62,8 +62,41 @@ app.get('/books/:id', (req, res, next) => {
 });
 
 //UPDATE
+app.put('/books/:id', (req, res, next) => {
+ if (!req._body) {
+  next(new Error(400, 'You need to provide a valid book'));
+ }
+ const id = req.params.id;
+ const updatedBook = req.body;
+
+ database.updateBook(
+  id,
+  updatedBook,
+  () => {
+   res.send(updatedBook);
+  },
+  (error) => {
+   console.log(error);
+   next(500, `Error while updating book ${id}`);
+  }
+ );
+});
 
 //DELETE
+app.delete('/books/:id', (req, res, next) => {
+ const id = req.params.id;
+
+ database.deleteBook(
+  id,
+  () => {
+   res.send();
+  },
+  (error) => {
+   console.log(error);
+   next(new Error(500, `Error while deleting book with id ${id}`));
+  }
+ );
+});
 
 //MIDDLEWARE
 app.use((err, req, res, next) => {
