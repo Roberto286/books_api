@@ -11,96 +11,93 @@ app.use(helmet());
 
 app.use(bodyParser.json());
 
-//CREATE
+// CREATE
 app.post('/books', (req, res, next) => {
- if (!req._body) {
-  return next(new Error(400, 'You need to provide a valide book'));
+ if (!req.body) {
+  return next(new Error(400, 'You need to provide a valid book'));
  }
+
  const newBook = req.body;
- database.insertBook(
-  newBook,
-  () => {
+ database
+  .insertBook(newBook)
+  .then(() => {
    res.send(newBook);
-  },
-  (error) => {
+  })
+  .catch((error) => {
    console.log(error);
    next(new Error(500, 'Error while creating new book'));
-  }
- );
+  });
 });
-//READ
+
+// READ
 app.get('/books', (req, res, next) => {
- database.getAllBooks(
-  (books) => {
+ database
+  .getAllBooks()
+  .then((books) => {
    res.send(books);
-  },
-  (error) => {
+  })
+  .catch((error) => {
    console.log(error);
    next(new Error(500, 'Error while retrieving all books'));
-  }
- );
+  });
 });
 
 app.get('/books/:id', (req, res, next) => {
  const id = req.params.id;
 
- database.getBookBy(
-  'id',
-  id,
-  (book) => {
+ database
+  .getBookBy('id', id)
+  .then((book) => {
    if (book) {
     res.send(book);
    } else {
     next(new Error(404, `Book with id ${id} not found`));
    }
-  },
-  (err) => {
-   console.log(err);
-   next(new Error(500, `error while retrieving book with id ${id}`));
-  }
- );
+  })
+  .catch((error) => {
+   console.log(error);
+   next(new Error(500, `Error while retrieving book with id ${id}`));
+  });
 });
 
-//UPDATE
+// UPDATE
 app.put('/books/:id', (req, res, next) => {
- if (!req._body) {
+ if (!req.body) {
   next(new Error(400, 'You need to provide a valid book'));
  }
+
  const id = req.params.id;
  const updatedBook = req.body;
 
- database.updateBook(
-  id,
-  updatedBook,
-  () => {
+ database
+  .updateBook(id, updatedBook)
+  .then(() => {
    res.send(updatedBook);
-  },
-  (error) => {
+  })
+  .catch((error) => {
    console.log(error);
-   next(500, `Error while updating book ${id}`);
-  }
- );
+   next(new Error(500, `Error while updating book ${id}`));
+  });
 });
 
-//DELETE
+// DELETE
 app.delete('/books/:id', (req, res, next) => {
  const id = req.params.id;
 
- database.deleteBook(
-  id,
-  () => {
+ database
+  .deleteBook(id)
+  .then(() => {
    res.send();
-  },
-  (error) => {
+  })
+  .catch((error) => {
    console.log(error);
    next(new Error(500, `Error while deleting book with id ${id}`));
-  }
- );
+  });
 });
 
-//MIDDLEWARE
+// ERROR HANDLING MIDDLEWARE
 app.use((err, req, res, next) => {
- res.status(err.status).send(err.message);
+ res.status(err.status || 500).send(err.message || 'Internal Server Error');
 });
 
 app.listen(port, () => {
